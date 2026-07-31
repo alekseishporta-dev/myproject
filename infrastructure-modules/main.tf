@@ -29,7 +29,7 @@ resource "docker_image" "postgres_image" {
    name = "postgres:15-alpine"
    keep_locally = false
 }
-resource "docker_imade" "prometheus_image" {
+resource "docker_image" "prometheus_image" {
   name = "prom:prometheus:latest"
   keep_locally = true
 }
@@ -83,7 +83,9 @@ resource "docker_container" "nginx_container" {
     internal = 80
     external = var.web_port
   }
-
+  
+ depends_on = [docker_container.postgres_container]
+}
 # ==========================================
 # МОНИТОРИНГ (PROMETHEUS & GRAFANA)
 # ==========================================
@@ -134,9 +136,4 @@ volumes {
   # Указываем фиксированный абсолютный путь в обход ограничений Snap
   host_path      = "/root/myproject/infrastructure-modules/src"
   container_path = "/usr/share/nginx/html"
-}
-# ==========================================
-# зависимости
-# ========================================== 
- depends_on = [docker_container.postgres_container]
 }

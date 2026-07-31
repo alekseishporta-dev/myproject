@@ -13,26 +13,33 @@ provider "docker" {
 
   # Инструкция для автоматической сборки образа из нашего Dockerfile
 
-resource "docker_network" "private_network" {
+data "docker_network" "private_network" {
   name = "${var.env_name}_network"
-  check_duplicate = true
-
-  lifecycle {
-    create_before_destroy = false
-  }
 }
+# ==========================================
+# Скачивание образов
+# ==========================================
 
 # 1. Скачиваем официальный образ Nginx
 resource "docker_image" "nginx_image" {
   name         = "nginx:latest"
   }
-
-
 # 2. Запускаем контейнер на основе скачанного образа
 resource "docker_image" "postgres_image" {
    name = "postgres:15-alpine"
    keep_locally = false
 }
+resource "docker_image" "prometheus_image" {
+  name = "prom:prometheus:latest"
+  keep_locally = true
+}
+resource "docker_image" "grafana_image" {
+  name         = "grafana/grafana:latest"
+  keep_locally = true
+}
+# ==========================================
+# Ресурс Постгрес
+# ==========================================
 
 resource "docker_container" "postgres_container" {
    image = docker_image.postgres_image.image_id
@@ -43,7 +50,7 @@ resource "docker_container" "postgres_container" {
   }
 
    networks_advanced {
-      name = docker_network.private_network.name
+      name = data.docker_network.private_network.name
 }
 
 env = [
@@ -53,6 +60,10 @@ env = [
 ]
 
 }
+
+# ==========================================
+# Ресурс Nginx
+# ==========================================
 
 resource "docker_container" "nginx_container" {
   image = docker_image.nginx_image.image_id
@@ -65,19 +76,64 @@ resource "docker_container" "nginx_container" {
   }
 
   networks_advanced {
-      name = docker_network.private_network.name
+      name = data.docker_network.private_network.name
 } 
 
   ports {
     internal = 80
     external = var.web_port
   }
+  
+ depends_on = [docker_container.postgres_container]
+}
+# ==========================================
+# МОНИТОРИНГ (PROMETHEUS & GRAFANA)
+# ==========================================
 
+resource "docker_container" "prometheus_container" {
+  image = docker_image.prometheus_image.image_id
+  name = "${var.env_name}-prometheus"
+
+  lifecycle {
+    create_before_destroy = false
+  }
+
+  networks_advanced {
+    name = data.docker_network.private_network.name
+  }
+
+  command = ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path"]
+}
+
+resource "docker_container" "grafana_container" {
+  image = docker_image.grafana_image.image_id
+  name = "${var.env_name}-grafana"
+
+  lifecycle {
+    create_before_destroy = false
+  }
+
+  networks_advanced {
+    name = data.docker_network.private_network.name
+  }
+
+  ports {
+    internal = 3000
+    external = var.env == "dev" ? 3000:3001
+  }
+  env = [
+    "GF_SECURITY_ADMIN_USER=admin",
+    "GF_SECURITY_ADMIN_PASSWORD=admin",
+    "GF_USERS_ALLOW_SIGN_UP=false"
+  ]
+  depends_on = [docker_container.prometheus_container]
+}
+
+# ==========================================
+# volumes
+# ==========================================
 volumes {
   # Указываем фиксированный абсолютный путь в обход ограничений Snap
   host_path      = "/root/myproject/infrastructure-modules/src"
   container_path = "/usr/share/nginx/html"
-}
- 
- depends_on = [docker_container.postgres_container]
 }
