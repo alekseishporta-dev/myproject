@@ -12,6 +12,12 @@ provider "docker" {
   host = "unix:///var/run/docker.sock"
 }
 
+  # Инструкция для автоматической сборки образа из нашего Dockerfile
+  build {
+    context    = "/root/myproject"
+    dockerfile = "Dockerfile"
+  }
+
 resource "docker_network" "private_network" {
   name = "${var.env_name}_network"
 }
