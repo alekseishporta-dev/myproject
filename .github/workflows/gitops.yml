@@ -35,7 +35,7 @@ jobs:
 
       - name: Clean Old Prod Containers
         run: |
-          docker rm -f prod-terraform-web-server prod-terraform-db 2>/dev/null ||
+          docker rm -f prod-terraform-web-server prod-terraform-db 2>/dev/null || true
 
       - name: Terragrunt Apply Prod
         run: |
