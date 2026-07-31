@@ -1,3 +1,4 @@
+cat << 'EOF' > .github/workflows/gitops.yml
 name: "Terragrunt Local GitOps"
 
 on:
@@ -7,7 +8,7 @@ on:
 jobs:
   dev-env:
     name: "Deploy Dev"
-    runs-on: [self-hosted, linux, x64] # <--- Точные метки вашего раннера
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -19,16 +20,14 @@ jobs:
 
   prod-env:
     name: "Deploy Prod"
-    runs-on: [self-hosted, linux, x64] # <--- Точные метки вашего раннера
+    runs-on: self-hosted
     needs: dev-env
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          clean: true
+
       - name: Terragrunt Apply Prod
         run: |
           cd live/prod
           terragrunt apply -auto-approve --terragrunt-non-interactive
-        with:
-          clean: true
+EOF
