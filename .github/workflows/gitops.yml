@@ -1,13 +1,13 @@
-cat << 'EOF' > .github/workflows/gitops.yml
-name: "Terragrunt Local GitOps"
+name: Terragrunt Local GitOps
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   dev-env:
-    name: "Deploy Dev"
+    name: Deploy Dev
     runs-on: self-hosted
     steps:
       - name: Checkout Code
@@ -19,7 +19,7 @@ jobs:
           terragrunt apply -auto-approve --terragrunt-non-interactive
 
   prod-env:
-    name: "Deploy Prod"
+    name: Deploy Prod
     runs-on: self-hosted
     needs: dev-env
     steps:
@@ -30,4 +30,3 @@ jobs:
         run: |
           cd live/prod
           terragrunt apply -auto-approve --terragrunt-non-interactive
-EOF
