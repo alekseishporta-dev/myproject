@@ -1,0 +1,34 @@
+name: "Terragrunt Local GitOps"
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  dev-env:
+    name: "Deploy Dev"
+    runs-on: [self-hosted, linux, x64] # <--- Точные метки вашего раннера
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Terragrunt Apply Dev
+        run: |
+          cd live/dev
+          terragrunt apply -auto-approve --terragrunt-non-interactive
+
+  prod-env:
+    name: "Deploy Prod"
+    runs-on: [self-hosted, linux, x64] # <--- Точные метки вашего раннера
+    needs: dev-env
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          clean: true
+      - name: Terragrunt Apply Prod
+        run: |
+          cd live/prod
+          terragrunt apply -auto-approve --terragrunt-non-interactive
+        with:
+          clean: true
