@@ -16,7 +16,7 @@ jobs:
       - name: Terragrunt Apply Dev
         run: |
           cd live/dev
-          terragrunt apply --terragrunt-non-interactive -auto-approve
+          terragrunt --terragrunt-non-interactive apply -auto-approve
 
   prod-env:
     name: Deploy Prod
@@ -29,4 +29,4 @@ jobs:
       - name: Terragrunt Apply Prod
         run: |
           cd live/prod
-          terragrunt apply --terragrunt-non-interactive -auto-approve
+          terragrunt --terragrunt-non-interactive apply -auto-approve
