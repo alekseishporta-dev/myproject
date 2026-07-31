@@ -1,0 +1,47 @@
+stages:
+  - plan
+  - apply
+
+default:
+  image: alpine/terragrunt:1.11.0
+  before_script:
+  - |
+    mdir -p ~/.terraform.d
+    echo 'provider_installation { network_mirror { url = "https://yandexcloud.net" include = ["registry.terraform.io/*/*"] } direct { exclude = ["registry.terraform.io/*/*"] } }' > ~/.terraformrc
+
+.plan_template: &plan_definition
+  stage:plan
+  script:
+    - cd live/${ENV_DIR}
+    - terragrunt plan --terragrunt-non-interactive
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+plan:dev:
+  variables:
+    ENV_DIR: "dev"
+  <<: *plan_definition
+
+plan:prod:
+  variables:
+    ENV_DIR: "prod"
+  <<: *plan_definition
+
+apply:dev:
+  stage: apply
+  script:
+    - cd live/dev
+    - terragrunt apply -auto-approve --terragrunt-non-interactive
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+apply:prod:
+  stage: apply
+  script:
+    - cd live/prod
+    - terragrunt apply -auto-approve --terragrunt-non-interactive
+  dependencies:
+    - plan:prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  whan: manual
