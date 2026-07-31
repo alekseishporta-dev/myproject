@@ -15,6 +15,7 @@ provider "docker" {
 
 resource "docker_network" "private_network" {
   name = "${var.env_name}_network"
+  
   check_duplicate = true
 
   lifecycle {
