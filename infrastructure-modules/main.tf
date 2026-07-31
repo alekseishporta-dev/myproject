@@ -119,6 +119,11 @@ resource "docker_container" "prometheus_container" {
   command = ["--config.file=/etc/prometheus/prometheus.yml"]
 
   user = "root"
+  volumes {
+    host_path = "/root/myproject/prometheus.yml"
+    container_path = "/etc/prometheus/prometheus.yml"
+    read_only = true
+  }
 }
 
 resource "docker_container" "grafana_container" {
