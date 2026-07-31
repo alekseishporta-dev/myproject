@@ -41,7 +41,7 @@ resource "docker_image" "grafana_image" {
   keep_locally = true 
 }
 
-resource "docker_image" "grafana_image" {
+resource "docker_image" "node-exporter_image" {
   name         = "prom/node-exporter:latest"
   keep_locally = true 
 }
