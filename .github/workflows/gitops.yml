@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  TF_IN_AUTOMATION: "true"
+
 jobs:
   dev-env:
     name: Deploy Dev
@@ -16,7 +19,7 @@ jobs:
       - name: Terragrunt Apply Dev
         run: |
           cd live/dev
-          terragrunt --terragrunt-non-interactive apply -auto-approve
+          terragrunt apply -auto-approve
 
   prod-env:
     name: Deploy Prod
@@ -29,4 +32,4 @@ jobs:
       - name: Terragrunt Apply Prod
         run: |
           cd live/prod
-          terragrunt --terragrunt-non-interactive apply -auto-approve
+          terragrunt apply -auto-approve
