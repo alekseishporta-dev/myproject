@@ -16,6 +16,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Clean Old Dev Containers
+        run: |
+          docker rm -f dev-terraform-web-server dev-terraform-db 2>/dev/null || true
+
       - name: Terragrunt Apply Dev
         run: |
           cd live/dev
@@ -28,6 +32,10 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Clean Old Prod Containers
+        run: |
+          docker rm -f prod-terraform-web-server prod-terraform-db 2>/dev/null ||
 
       - name: Terragrunt Apply Prod
         run: |
