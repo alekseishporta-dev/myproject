@@ -40,6 +40,12 @@ resource "docker_image" "grafana_image" {
   name         = "grafana/grafana:latest"
   keep_locally = true 
 }
+
+resource "docker_image" "grafana_image" {
+  name         = "prom/node-exporter:latest"
+  keep_locally = true 
+}
+
 # ==========================================
 # Ресурс Постгрес
 # ==========================================
@@ -139,3 +145,39 @@ resource "docker_container" "grafana_container" {
   depends_on = [docker_container.prometheus_container]
 }
 
+resource "docker_container" "node_exporter_container" {
+  image = docker_image.node_exporter_image_id
+  name = "${var.env_name}-node-exporter"
+
+  lifecycle {
+    create_before_destroy = false
+  }
+
+  networks_advanced {
+    name = data.docker_network.private_network.name
+  }
+
+  volumes {
+    host_path = "/proc"
+    container_path = "/host/proc"
+    read_only = true
+  }
+
+volumes {
+    host_path = "/sys"
+    container_path = "/host/sys"
+    read_only = true
+  }
+
+volumes {
+    host_path = "/"
+    container_path = "/rootfs"
+    read_only = true
+  }
+
+  command = [
+    "--path.procfs=/host/proc",
+    "--path.sysfs=/host/sys",
+    "--path.rootfs=/rootfs"
+  ]
+}
