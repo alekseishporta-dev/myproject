@@ -58,10 +58,11 @@ resource "docker_container" "nginx_container" {
     external = var.web_port
   }
 
-  volumes {
-    host_path     = "${path.cwd}/src"
-    container_path = "/usr/share/nginx/html"
-  }
+volumes {
+  # Указываем фиксированный абсолютный путь в обход ограничений Snap
+  host_path      = "/var/snap/docker/common/myproject/src"
+  container_path = "/usr/share/nginx/html"
+}
  
  depends_on = [docker_container.postgres_container]
 }
