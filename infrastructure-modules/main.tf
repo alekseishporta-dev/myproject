@@ -2,7 +2,6 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "~> 3.0.1"
     }
   }
 }
@@ -21,11 +20,8 @@ resource "docker_network" "private_network" {
 # 1. Скачиваем официальный образ Nginx
 resource "docker_image" "nginx_image" {
   name         = "nginx:latest"
-    build_context {
-    path       = "/root/myproject"
-    dockerfile = "Dockerfile"
   }
-}
+
 
 # 2. Запускаем контейнер на основе скачанного образа
 resource "docker_image" "postgres_image" {
