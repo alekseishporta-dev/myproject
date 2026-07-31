@@ -146,7 +146,7 @@ resource "docker_container" "grafana_container" {
 }
 
 resource "docker_container" "node_exporter_container" {
-  image = docker_image.node_exporter_image_id
+  image = docker_image.node_exporter_image.image_id
   name = "${var.env_name}-node-exporter"
 
   lifecycle {
