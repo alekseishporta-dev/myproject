@@ -53,7 +53,11 @@ resource "docker_image" "node_exporter_image" {
 resource "docker_container" "postgres_container" {
    image = docker_image.postgres_image.image_id
    name = "${var.env_name}-terraform-db"
-  lifecycle {
+
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
+
+lifecycle {
     # Запрещаем создавать новый контейнер, пока не удален старый конфликтующий
     create_before_destroy = false
   }
@@ -77,7 +81,9 @@ env = [
 resource "docker_container" "nginx_container" {
   image = docker_image.nginx_image.image_id
   name  = "${var.env_name}-terraform-web-server"
-  
+
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
 
   lifecycle {
     # Запрещаем создавать новый контейнер, пока не удален старый конфликтующий
@@ -108,6 +114,9 @@ resource "docker_container" "prometheus_container" {
   image = docker_image.prometheus_image.image_id
   name = "${var.env_name}-prometheus"
 
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
+
   lifecycle {
     create_before_destroy = false
   }
@@ -129,6 +138,9 @@ resource "docker_container" "prometheus_container" {
 resource "docker_container" "grafana_container" {
   image = docker_image.grafana_image.image_id
   name = "${var.env_name}-grafana"
+
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
 
   lifecycle {
     create_before_destroy = false
@@ -153,6 +165,9 @@ resource "docker_container" "grafana_container" {
 resource "docker_container" "node_exporter_container" {
   image = docker_image.node_exporter_image.image_id
   name = "${var.env_name}-node-exporter"
+
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
 
   lifecycle {
     create_before_destroy = false
