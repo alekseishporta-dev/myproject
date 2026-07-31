@@ -18,7 +18,7 @@ jobs:
 
       - name: Clean Old Dev Containers
         run: |
-          docker rm -f dev-terraform-web-server dev-terraform-db 2>/dev/null || true
+          docker rm -f $(docker ps -a -q --filter "name=^dev-") 2>/dev/null || true
 
       - name: Terragrunt Apply Dev
         run: |
@@ -35,7 +35,7 @@ jobs:
 
       - name: Clean Old Prod Containers
         run: |
-          docker rm -f prod-terraform-web-server prod-terraform-db 2>/dev/null || true
+          docker rm -f $(docker ps -a -q --filter "name=^prod-") 2>/dev/null || true
 
       - name: Terragrunt Apply Prod
         run: |
