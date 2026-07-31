@@ -175,6 +175,11 @@ volumes {
     read_only = true
   }
 
+  ports {
+    internal = 9100
+    external = var.env_name == "prod" ? 9100:9101
+  }
+
   command = [
     "--path.procfs=/host/proc",
     "--path.sysfs=/host/sys",
