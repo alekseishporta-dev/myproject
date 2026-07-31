@@ -82,7 +82,7 @@ resource "docker_container" "nginx_container" {
   image = docker_image.nginx_image.image_id
   name  = "${var.env_name}-terraform-web-server"
 
-memory     = 256 # Ограничиваем память до 256 МБ
+memory     = 512 # Ограничиваем память до 256 МБ
 cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
 
   lifecycle {
@@ -139,7 +139,7 @@ resource "docker_container" "grafana_container" {
   image = docker_image.grafana_image.image_id
   name = "${var.env_name}-grafana"
 
-memory     = 256 # Ограничиваем память до 256 МБ
+memory     = 512 # Ограничиваем память до 256 МБ
 cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
 
   lifecycle {
