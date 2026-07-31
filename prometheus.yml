@@ -3,9 +3,9 @@ global:
 
 scrape_configs:
   - job_name: 'prometheus'
-    static_config:
+    static_configs:
       - targets: ['localhost:9090']
 
   - job_name: 'node-exporter'
-    static_config:
+    static_configs:
       - targets: ['dev-node-exporter:9100', 'prod-node-exporter:9100']
