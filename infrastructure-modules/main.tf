@@ -134,8 +134,8 @@ resource "docker_container" "grafana_container" {
   }
 
   ports {
-    internal = 3000
-    external = var.env_name == "dev" ? 3000:3001
+    internal = var.env_name == "prod" ? 3000:3001
+    external = var.env_name == "prod" ? 3000:3001
   }
   env = [
     "GF_SECURITY_ADMIN_USER=admin",
