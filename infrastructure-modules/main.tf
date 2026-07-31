@@ -13,14 +13,8 @@ provider "docker" {
 
   # Инструкция для автоматической сборки образа из нашего Dockerfile
 
-resource "docker_network" "private_network" {
+data "docker_network" "private_network" {
   name = "${var.env_name}_network"
-  
-  check_duplicate = true
-
-  lifecycle {
-    create_before_destroy = false
-  }
 }
 
 # 1. Скачиваем официальный образ Nginx
@@ -44,7 +38,7 @@ resource "docker_container" "postgres_container" {
   }
 
    networks_advanced {
-      name = docker_network.private_network.name
+      name = data.docker_network.private_network.name
 }
 
 env = [
@@ -66,7 +60,7 @@ resource "docker_container" "nginx_container" {
   }
 
   networks_advanced {
-      name = docker_network.private_network.name
+      name = data.docker_network.private_network.name
 } 
 
   ports {
