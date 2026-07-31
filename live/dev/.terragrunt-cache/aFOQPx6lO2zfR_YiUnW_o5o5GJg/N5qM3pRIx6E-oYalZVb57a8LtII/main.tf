@@ -15,6 +15,11 @@ provider "docker" {
 
 resource "docker_network" "private_network" {
   name = "${var.env_name}_network"
+  check_duplicate = true
+
+  lifecycle {
+    create_before_destroy = false
+  }
 }
 
 # 1. Скачиваем официальный образ Nginx
@@ -32,7 +37,10 @@ resource "docker_image" "postgres_image" {
 resource "docker_container" "postgres_container" {
    image = docker_image.postgres_image.image_id
    name = "${var.env_name}-terraform-db"
-
+  lifecycle {
+    # Запрещаем создавать новый контейнер, пока не удален старый конфликтующий
+    create_before_destroy = false
+  }
 
    networks_advanced {
       name = docker_network.private_network.name
@@ -49,6 +57,12 @@ env = [
 resource "docker_container" "nginx_container" {
   image = docker_image.nginx_image.image_id
   name  = "${var.env_name}-terraform-web-server"
+  
+
+  lifecycle {
+    # Запрещаем создавать новый контейнер, пока не удален старый конфликтующий
+    create_before_destroy = false
+  }
 
   networks_advanced {
       name = docker_network.private_network.name
@@ -61,7 +75,7 @@ resource "docker_container" "nginx_container" {
 
 volumes {
   # Указываем фиксированный абсолютный путь в обход ограничений Snap
-  host_path      = "/var/snap/docker/common/myproject/src"
+  host_path      = "/root/myproject/infrastructure-modules/src"
   container_path = "/usr/share/nginx/html"
 }
  
