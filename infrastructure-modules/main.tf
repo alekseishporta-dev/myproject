@@ -176,7 +176,7 @@ volumes {
   }
 
   ports {
-    internal = 9100
+    internal = var.env_name == "prod" ? 9100:9101
     external = var.env_name == "prod" ? 9100:9101
   }
 
