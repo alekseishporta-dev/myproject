@@ -134,7 +134,7 @@ resource "docker_container" "grafana_container" {
   }
 
   ports {
-    internal = var.env_name == "prod" ? 3000:3001
+    internal = 3000
     external = var.env_name == "prod" ? 3000:3001
   }
   env = [
