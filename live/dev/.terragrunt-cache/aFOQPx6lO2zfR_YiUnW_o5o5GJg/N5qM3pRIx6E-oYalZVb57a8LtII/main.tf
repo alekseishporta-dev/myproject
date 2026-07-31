@@ -24,18 +24,21 @@ data "docker_network" "private_network" {
 resource "docker_image" "nginx_image" {
   name         = "nginx:latest"
   }
+
 # 2. Запускаем контейнер на основе скачанного образа
 resource "docker_image" "postgres_image" {
    name = "postgres:15-alpine"
-   keep_locally = false
+   keep_locally = true 
 }
+
 resource "docker_image" "prometheus_image" {
-  name = "prom:prometheus:latest"
-  keep_locally = true
+  name = "prom/prometheus:latest"
+  keep_locally = true 
 }
+
 resource "docker_image" "grafana_image" {
   name         = "grafana/grafana:latest"
-  keep_locally = true
+  keep_locally = true 
 }
 # ==========================================
 # Ресурс Постгрес
@@ -83,6 +86,11 @@ resource "docker_container" "nginx_container" {
     internal = 80
     external = var.web_port
   }
+volumes {
+  # Указываем фиксированный абсолютный путь в обход ограничений Snap
+  host_path      = "/root/myproject/infrastructure-modules/src"
+  container_path = "/usr/share/nginx/html"
+  }
   
  depends_on = [docker_container.postgres_container]
 }
@@ -102,7 +110,9 @@ resource "docker_container" "prometheus_container" {
     name = data.docker_network.private_network.name
   }
 
-  command = ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path"]
+  command = ["--config.file=/etc/prometheus/prometheus.yml"]
+
+  user = "root"
 }
 
 resource "docker_container" "grafana_container" {
@@ -119,7 +129,7 @@ resource "docker_container" "grafana_container" {
 
   ports {
     internal = 3000
-    external = var.env == "dev" ? 3000:3001
+    external = var.env_name == "dev" ? 3000:3001
   }
   env = [
     "GF_SECURITY_ADMIN_USER=admin",
@@ -129,11 +139,3 @@ resource "docker_container" "grafana_container" {
   depends_on = [docker_container.prometheus_container]
 }
 
-# ==========================================
-# volumes
-# ==========================================
-volumes {
-  # Указываем фиксированный абсолютный путь в обход ограничений Snap
-  host_path      = "/root/myproject/infrastructure-modules/src"
-  container_path = "/usr/share/nginx/html"
-}
