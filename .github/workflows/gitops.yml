@@ -25,6 +25,11 @@ jobs:
           cd live/dev
           terragrunt apply -auto-approve
 
+      - name: Terragrunt Apply Dev Monitoring
+        run: |
+          cd live/dev/k3s-monitoring
+          terragrunt apply -auto-approve
+
   prod-env:
     name: Deploy Prod
     runs-on: self-hosted
@@ -40,4 +45,9 @@ jobs:
       - name: Terragrunt Apply Prod
         run: |
           cd live/prod
+          terragrunt apply -auto-approve
+
+      - name: Terragrunt Apply Prod Monitoring
+        run: |
+          cd live/prod/k3s-monitoring
           terragrunt apply -auto-approve

@@ -40,6 +40,12 @@ resource "docker_image" "grafana_image" {
   name         = "grafana/grafana:latest"
   keep_locally = true 
 }
+
+resource "docker_image" "node_exporter_image" {
+  name         = "prom/node-exporter:latest"
+  keep_locally = true 
+}
+
 # ==========================================
 # Ресурс Постгрес
 # ==========================================
@@ -47,7 +53,11 @@ resource "docker_image" "grafana_image" {
 resource "docker_container" "postgres_container" {
    image = docker_image.postgres_image.image_id
    name = "${var.env_name}-terraform-db"
-  lifecycle {
+
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
+
+lifecycle {
     # Запрещаем создавать новый контейнер, пока не удален старый конфликтующий
     create_before_destroy = false
   }
@@ -71,7 +81,9 @@ env = [
 resource "docker_container" "nginx_container" {
   image = docker_image.nginx_image.image_id
   name  = "${var.env_name}-terraform-web-server"
-  
+
+memory     = 512 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
 
   lifecycle {
     # Запрещаем создавать новый контейнер, пока не удален старый конфликтующий
@@ -102,6 +114,9 @@ resource "docker_container" "prometheus_container" {
   image = docker_image.prometheus_image.image_id
   name = "${var.env_name}-prometheus"
 
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
+
   lifecycle {
     create_before_destroy = false
   }
@@ -113,11 +128,19 @@ resource "docker_container" "prometheus_container" {
   command = ["--config.file=/etc/prometheus/prometheus.yml"]
 
   user = "root"
+  volumes {
+    host_path = "/root/myproject/prometheus.yml"
+    container_path = "/etc/prometheus/prometheus.yml"
+    read_only = true
+  }
 }
 
 resource "docker_container" "grafana_container" {
   image = docker_image.grafana_image.image_id
   name = "${var.env_name}-grafana"
+
+memory     = 512 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
 
   lifecycle {
     create_before_destroy = false
@@ -129,7 +152,7 @@ resource "docker_container" "grafana_container" {
 
   ports {
     internal = 3000
-    external = var.env_name == "dev" ? 3000:3001
+    external = var.env_name == "prod" ? 3000:3001
   }
   env = [
     "GF_SECURITY_ADMIN_USER=admin",
@@ -139,3 +162,42 @@ resource "docker_container" "grafana_container" {
   depends_on = [docker_container.prometheus_container]
 }
 
+resource "docker_container" "node_exporter_container" {
+  image = docker_image.node_exporter_image.image_id
+  name = "${var.env_name}-node-exporter"
+
+memory     = 256 # Ограничиваем память до 256 МБ
+cpu_shares = 256 # Выделяем только 25% от мощности одного ядра CPU
+
+  lifecycle {
+    create_before_destroy = false
+  }
+
+  networks_advanced {
+    name = data.docker_network.private_network.name
+  }
+
+  volumes {
+    host_path = "/proc"
+    container_path = "/host/proc"
+    read_only = true
+  }
+
+volumes {
+    host_path = "/sys"
+    container_path = "/host/sys"
+    read_only = true
+  }
+
+volumes {
+    host_path = "/"
+    container_path = "/rootfs"
+    read_only = true
+  }
+
+  command = [
+    "--path.procfs=/host/proc",
+    "--path.sysfs=/host/sys",
+    "--path.rootfs=/rootfs"
+  ]
+}
