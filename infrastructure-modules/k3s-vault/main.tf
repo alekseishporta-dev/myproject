@@ -20,10 +20,7 @@ variable "env_name" {
 
 resource "helm_release" "vault" {
   name             = "${var.env_name}-vault"
-  repository       = "https://hashicorp.com"
-  chart            = "vault"
-  namespace        = var.env_name
-  create_namespace = true
+  chart            = "./vault-helm-0.34.1.tar.gz"
 
   # Настройки Vault передаем через блок values
   values = [
