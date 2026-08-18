@@ -25,10 +25,20 @@ jobs:
 #          cd live/dev
 #          terragrunt apply -auto-approve
 
+      - name: Clear Terragrunt Cache Dev
+        run: |
+          rm -rf live/dev/k3s-monitoring/.terragrunt-cache
+          rm -rf live/dev/k3s-vault/.terragrunt-cache
+
       - name: Terragrunt Apply Dev Monitoring
         run: |
           cd live/dev/k3s-monitoring
           terragrunt apply -auto-approve
+
+      - name: Terragrunt Apply dev Vault
+        run: |
+          cd live/dev/k3s-vault
+          terragrunt apply -auto-approve 
 
   prod-env:
     name: Deploy Prod
@@ -42,6 +52,11 @@ jobs:
         run: |
           docker rm -f $(docker ps -a -q --filter "name=^prod-") 2>/dev/null || true
 
+      - name: Clear Terragrunt Cache Prod
+        run: |
+          rm -rf live/prod/k3s-monitoring/.terragrunt-cache
+          rm -rf live/prod/k3s-vault/.terragrunt-cache
+
 #      - name: Terragrunt Apply Prod
 #        run: |
 #          cd live/prod
@@ -51,3 +66,8 @@ jobs:
         run: |
           cd live/prod/k3s-monitoring
           terragrunt apply -auto-approve
+
+      - name: Terragrunt Apply Prod Vault
+        run: |
+          cd live/prod/k3s-vault
+          terragrunt apply -auto-approve      
