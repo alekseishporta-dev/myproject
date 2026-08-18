@@ -47,6 +47,11 @@ resource "helm_release" "vault" {
         type: NodePort
         nodePort: ${var.env_name == "dev" ? 31000 : 31001}
 
+      dataStorage:
+         enabled: true
+         size: 1Gi
+         storageClass: "local-path"
+
     # Отключаем встроенный инжектор секретов (пока он нам не нужен для простоты)
     injector:
       enabled: false
