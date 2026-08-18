@@ -53,6 +53,6 @@ values = [
  ]
  set {
     name = "prometheus-node-exporter.enabled"
-    value = var.env_name == "dev" ? "true" : "false"
+    value = contains(["dev", "prod"], var.env_name)
  }
 }
