@@ -20,10 +20,10 @@ jobs:
         run: |
           docker rm -f $(docker ps -a -q --filter "name=^dev-") 2>/dev/null || true
 
-      - name: Terragrunt Apply Dev
-        run: |
-          cd live/dev
-          terragrunt apply -auto-approve
+#      - name: Terragrunt Apply Dev
+#        run: |
+#          cd live/dev
+#          terragrunt apply -auto-approve
 
       - name: Terragrunt Apply Dev Monitoring
         run: |
@@ -42,10 +42,10 @@ jobs:
         run: |
           docker rm -f $(docker ps -a -q --filter "name=^prod-") 2>/dev/null || true
 
-      - name: Terragrunt Apply Prod
-        run: |
-          cd live/prod
-          terragrunt apply -auto-approve
+#      - name: Terragrunt Apply Prod
+#        run: |
+#          cd live/prod
+#          terragrunt apply -auto-approve
 
       - name: Terragrunt Apply Prod Monitoring
         run: |
